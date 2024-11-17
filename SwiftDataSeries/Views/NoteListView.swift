@@ -12,6 +12,7 @@ struct NoteListView: View {
     
     @State private var isPresentingModal: Bool = false
     @State private var newText: String = ""
+    @State private var selectedCategory: CategoryType = .work
     
     @Environment(\.modelContext) private var context
     
@@ -22,112 +23,47 @@ struct NoteListView: View {
     var body: some View {
         NavigationStack {
             List {
-                DisclosureGroup("To Do") {
+                Section(header: Text("To Do")) {
                     ForEach(todoNotes, id: \.id) { note in
-                        HStack(alignment:.center) {
-                            Text(note.content)
-                            Spacer()
-                            Text("\(note.dateAdded.formatDate())")
-                        }.swipeActions {
-                            
-                            Button {
-                                note.isDone.toggle()
-                            } label: {
-                                Image(systemName: "checkmark")
-                            }.tint(.green)
-                            
-                            Button {
-                                context.delete(note)
-                                try? context.save()
-                            } label: {
-                                Image(systemName: "trash.fill")
-                            }
-                            .tint(.red)
-                        }
+                        NoteItemRowView(note: note, context: context)
                     }
                 }
-                
-                DisclosureGroup("Done") {
+               
+                Section(header: Text("Done")) {
                     ForEach(doneNotes, id: \.id) { note in
-                        HStack(alignment:.center) {
-                            Text(note.content)
-                            Spacer()
-                            Text("\(note.dateAdded.formatDate())")
-                        }.swipeActions {
-                            Button {
-                                note.isDone.toggle()
-                            } label: {
-                                Image(systemName: "xmark")
-                            }.tint(.red)
-                            
-                            Button {
-                                context.delete(note)
-                                try? context.save()
-                            } label: {
-                                Image(systemName: "trash.fill")
-                            }
-                            .tint(.red)
-                        }
+                        NoteItemRowView(note: note, context: context)
                     }
                 }
-            }.toolbar {
+               
+            }.scrollContentBackground(.hidden)
+                .background(.clear)
+            .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Add Item") {
                         isPresentingModal = true
                     }
                 }
             }.sheet(isPresented: $isPresentingModal) {
-                AddItemModalView(text: $newText, onComplete: {
+                AddItemModalView(text: $newText, selectedCategory: $selectedCategory, onSave: {
                     isPresentingModal = false
-
-                    guard !newText.isEmpty else {
-                        return
-                    }
-                    
-                    context.insert(Note(content: newText, isDone: false))
-                    
+                    let note = Note(content: newText, isDone: false)
+                    let category = Category(categoryTypeRawValue: selectedCategory.rawValue, belongsTo: note)
+                    context.insert(category)
                     do {
                         try context.save()
                         newText = ""
                     } catch {
                         print("Error on saving = \(error.localizedDescription)")
                     }
-                    
+                }, onCancel:  {
+                    isPresentingModal = false 
                 })
             }
         }
     }
 }
 
-struct AddItemModalView: View {
-    @Binding var text: String
-    var onComplete: () -> Void
-    
-    var body: some View {
-        
-        NavigationView {
-            VStack {
-                TextField("Enter new item", text: $text)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding()
-                Spacer()
-            }.toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        onComplete()
-                    }
-                }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        onComplete()
-                    }
-                }
-            }
-        }
-        
-    }
-}
+
 #Preview {
     NoteListView()
 }
