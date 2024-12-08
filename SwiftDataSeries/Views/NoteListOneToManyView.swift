@@ -64,7 +64,6 @@ struct NoteListOneToManyView: View {
             let note = NoteOneToMany(content: newItem, isDone: false)
             let categories = selectedCategories.map { CategoryOneToMany(categoryType: CategoryType(rawValue: $0.rawValue) ?? .personal, belongsTo: note) }
             categories.forEach { context.insert($0)}
-            
             do {
                 try context.save()
             } catch {
