@@ -14,7 +14,10 @@ struct SwiftDataSeriesApp: App {
     /// An object that manages an app's schema and model storage configuration.
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Note.self
+            Note.self,
+            Category.self,
+            NoteOneToMany.self,
+            CategoryOneToMany.self
         ])
         
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
@@ -28,7 +31,7 @@ struct SwiftDataSeriesApp: App {
 
     var body: some Scene {
         WindowGroup {
-            NoteListView()
+            NoteListOneToManyView()
         }.modelContainer(sharedModelContainer)
     }
 }

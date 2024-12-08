@@ -12,6 +12,7 @@ extension Date {
     func formatDate() -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium // Choose the desired date format
+        formatter.timeStyle = .short
         return formatter.string(from: self)
     }
 }
