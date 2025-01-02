@@ -10,83 +10,62 @@ import SwiftData
 
 struct NoteItemRowView: View {
     let note: Note
-    let context: ModelContext
-    
+    let isEditMode: Bool
+    var onSelectionChanged: (Note) -> Void
+    var onDelete: (Note) -> Void
+    var onDone: (Note) -> Void
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(note.content)
-                .font(.headline)
-                .lineLimit(3)
+        HStack {
+            if isEditMode && !note.isDone  {
+                Image(systemName: note.isSelected ? "checkmark.circle.fill" : "circle")
+                    .foregroundColor(note.isSelected ? .blue : .gray)
+                    .onTapGesture {
+                        note.isSelected.toggle()
+                        onSelectionChanged(note)
+                    }
+            }
             
-            if let category = note.category?.categoryTypeRawValue {
-                HStack {
-                    Text("Category: ")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    
-                    Text(category)
+            VStack(alignment: .leading ,spacing: 4) {
+                Text(note.content)
+                    .font(.headline)
+                    .strikethrough(note.isDone, color: .gray)
+                    .foregroundStyle(note.isDone ? .gray : .primary)
+                
+                Text(note.dateAdded.formatDate())
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                
+                if let category = note.category {
+                    Text(category.categoryTypeRawValue)
                         .font(.subheadline)
                         .padding(6)
                         .background(Color.blue.opacity(0.2))
-                        .foregroundStyle(.primary)
                         .cornerRadius(8)
                 }
             }
             
-            HStack {
-                Text(note.isDone ? "Done" : "To Do")
-                    .font(.caption)
-                    .padding()
-                    .background(note.isDone ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
-                    .cornerRadius(4)
-                
-                Spacer()
-                
-                Text(note.dateAdded, format: Date.FormatStyle
-                    .dateTime
-                    .day().month().year()
-                    .hour().minute())
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            }
-        }.padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
-            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                // Toggle Status Action
+            Spacer()
+            
+            if !isEditMode {
                 Button {
-                    toggleStatus()
+                    toggleDoneStatus()
                 } label: {
-                    Text(note.isDone ? "To Do" : "Done")
-                }
-                .tint(note.isDone ? .gray : .green)
-                
-                // Delete Action
-                Button(role: .destructive) {
-                    deleteNote()
-                } label: {
-                    Label("Delete", systemImage: "trash")
+                    Image(systemName: note.isDone ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(note.isDone ? .green : .blue)
+                }.swipeActions(edge: .trailing) {
+                    Button(role: .destructive) {
+                        onDelete(note)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
                 }
             }
-    }
-    
-    func toggleStatus() {
-        note.isDone.toggle()
-        saveChanges()
-    }
-    
-    func deleteNote() {
-        context.delete(note)
-        saveChanges()
-    }
-    
-    private func saveChanges() {
-        do {
-            try context.save()
-        } catch {
-            print("⚠️ Error saving changes: \(error.localizedDescription)")
         }
+    }
+    
+    private func toggleDoneStatus() {
+        note.isDone.toggle()
+        onDone(note)
     }
 }
 

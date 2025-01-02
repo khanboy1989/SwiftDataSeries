@@ -27,6 +27,8 @@ Takes no action when the owning object is deleted. (Useful for handling related 
     var dateAdded: Date
     @Relationship(deleteRule: .cascade, inverse: \Category.belongsTo) var category: Category?
     
+    @Transient var isSelected: Bool = false
+    
     init(content: String, isDone: Bool) {
         self.id = UUID()
         self.content = content
