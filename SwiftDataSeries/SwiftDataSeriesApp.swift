@@ -31,7 +31,9 @@ struct SwiftDataSeriesApp: App {
 
     var body: some Scene {
         WindowGroup {
-            NoteListView()
+//            NoteListView()
+            NoteListReusableView()
         }.modelContainer(sharedModelContainer)
     }
 }
+ 

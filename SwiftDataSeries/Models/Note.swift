@@ -29,6 +29,10 @@ Takes no action when the owning object is deleted. (Useful for handling related 
     
     @Transient var isSelected: Bool = false
     
+    @Transient var formattedDate: String {
+        dateAdded.formatDate()
+    }
+    
     init(content: String, isDone: Bool) {
         self.id = UUID()
         self.content = content
