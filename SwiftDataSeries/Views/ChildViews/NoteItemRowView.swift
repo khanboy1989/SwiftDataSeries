@@ -31,7 +31,7 @@ struct NoteItemRowView: View {
                     .strikethrough(note.isDone, color: .gray)
                     .foregroundStyle(note.isDone ? .gray : .primary)
                 
-                Text(note.dateAdded.formatDate())
+                Text(note.dueDate.formatDate())
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 

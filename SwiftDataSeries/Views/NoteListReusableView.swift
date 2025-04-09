@@ -12,9 +12,9 @@ struct NoteListReusableView: View {
     // Swift Data model context for queries and other operations
     @Environment(\.modelContext) private var context
     
-    @Query(FetchDescriptor(predicate: #Predicate{(note: Note) in note.isDone == false }, sortBy: [SortDescriptor(\.dateAdded)]), animation: .snappy) private var todoNotes: [Note]
+    @Query(FetchDescriptor(predicate: #Predicate{(note: Note) in note.isDone == false }, sortBy: [SortDescriptor(\.dueDate)]), animation: .snappy) private var todoNotes: [Note]
     
-    @Query(FetchDescriptor(predicate: #Predicate{( note: Note ) in note.isDone == true}, sortBy: [SortDescriptor(\.dateAdded)]), animation: .snappy) private var doneNotes: [Note]
+    @Query(FetchDescriptor(predicate: #Predicate{( note: Note ) in note.isDone == true}, sortBy: [SortDescriptor(\.dueDate)]), animation: .snappy) private var doneNotes: [Note]
     
     @State private var selectedNotes: Set<Note> = []
     @State private var isPresentingModal: Bool = false
